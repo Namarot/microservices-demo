@@ -21,6 +21,9 @@ jobs:
             sudo apt-get install -y docker.io
             sudo systemctl start docker
             sudo systemctl enable docker
+            # Add the current user to the docker group
+            sudo usermod -aG docker $USER
+            echo "User $USER added to the docker group. Please log out and back in for changes to take effect."
           else
             echo "Docker is already installed."
           fi
