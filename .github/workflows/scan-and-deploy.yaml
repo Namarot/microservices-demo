@@ -1,4 +1,4 @@
-name: Scan Kubernetes Images
+name: Scan Kubernetes Images and Deploy
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - main  # Adjust this if you want to trigger on a different branch
 
 jobs:
-  scan-images:
-    runs-on: ubuntu-latest
+  scan-and-deploy:
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
@@ -74,3 +74,8 @@ jobs:
             echo "Scanning image: $image"
             mend image "$image" # Add any necessary flags for the Mend CLI here
           done
+
+      - name: Deploy to Kubernetes
+        run: |
+          echo "Deploying Kubernetes manifests..."
+          kubectl apply -f ./release/kubernetes-manifests.yaml
