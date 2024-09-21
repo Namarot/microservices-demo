@@ -1,0 +1,59 @@
+name: Analyze Image Size
+
+on:
+  push:
+    branches:
+      - main  # Adjust this if you want to trigger on a different branch
+
+jobs:
+  scan-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Docker
+        run: |
+          if ! command -v docker &> /dev/null; then
+            echo "Docker not found. Installing Docker..."
+            sudo apt-get update
+            sudo apt-get install -y docker.io
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            # Add the current user to the docker group
+            sudo usermod -aG docker $USER
+            echo "User $USER added to the docker group. Please log out and back in for changes to take effect."
+          else
+            echo "Docker is already installed."
+          fi
+
+
+      - name: Install Dive
+        run: |
+          sudo apt-get install -y dive
+
+      - name: Analyze Docker Images with Dive
+        run: |
+          # List of images to scan
+          images=(
+            "gcr.io/google-samples/microservices-demo/currencyservice:v0.10.1"
+            "busybox:latest"
+            "gcr.io/google-samples/microservices-demo/loadgenerator:v0.10.1"
+            "gcr.io/google-samples/microservices-demo/productcatalogservice:v0.10.1"
+            "gcr.io/google-samples/microservices-demo/checkoutservice:v0.10.1"
+            "gcr.io/google-samples/microservices-demo/shippingservice:v0.10.1"
+            "gcr.io/google-samples/microservices-demo/cartservice:v0.10.1"
+            "redis:alpine"
+            "gcr.io/google-samples/microservices-demo/emailservice:v0.10.1"
+            "gcr.io/google-samples/microservices-demo/paymentservice:v0.10.1"
+            "gcr.io/google-samples/microservices-demo/frontend:v0.10.1"
+            "gcr.io/google-samples/microservices-demo/recommendationservice:v0.10.1"
+            "gcr.io/google-samples/microservices-demo/adservice:v0.10.1"
+          )
+          # Loop through each image and analyze it with Dive
+          for image in "${images[@]}"; do
+            echo "Analyzing image with Dive: $image"
+            export CI=true
+            dive "$image" # This will run the dive analysis
+          done
