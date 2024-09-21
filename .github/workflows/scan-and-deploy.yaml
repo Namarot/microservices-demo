@@ -13,39 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
       - name: Install Mend CLI
         run: |
           sudo curl https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend
           sudo chmod +x /usr/local/bin/mend
-
-      - name: Pull Docker Images
-        id: pull_images
-        run: |
-          # Extract images from the Kubernetes manifest file
-          images=(
-            "gcr.io/google-samples/microservices-demo/currencyservice:v0.10.1"
-            "busybox:latest"
-            "gcr.io/google-samples/microservices-demo/loadgenerator:v0.10.1"
-            "gcr.io/google-samples/microservices-demo/productcatalogservice:v0.10.1"
-            "gcr.io/google-samples/microservices-demo/checkoutservice:v0.10.1"
-            "gcr.io/google-samples/microservices-demo/shippingservice:v0.10.1"
-            "gcr.io/google-samples/microservices-demo/cartservice:v0.10.1"
-            "redis:alpine"
-            "gcr.io/google-samples/microservices-demo/emailservice:v0.10.1"
-            "gcr.io/google-samples/microservices-demo/paymentservice:v0.10.1"
-            "gcr.io/google-samples/microservices-demo/frontend:v0.10.1"
-            "gcr.io/google-samples/microservices-demo/recommendationservice:v0.10.1"
-            "gcr.io/google-samples/microservices-demo/adservice:v0.10.1"
-          )
-
-          # Loop through each image and pull it
-          for image in "${images[@]}"; do
-            echo "Pulling image: $image"
-            docker pull "$image"
-          done
 
       - name: Scan Docker Images with Mend
         env:
@@ -53,7 +24,7 @@ jobs:
           MEND_EMAIL: ${{ secrets.MEND_EMAIL }}
           MEND_USER_KEY: ${{ secrets.MEND_USER_KEY }}
         run: |
-          # Loop through each image and scan it with Mend CLI
+          # List of images to scan
           images=(
             "gcr.io/google-samples/microservices-demo/currencyservice:v0.10.1"
             "busybox:latest"
@@ -70,10 +41,12 @@ jobs:
             "gcr.io/google-samples/microservices-demo/adservice:v0.10.1"
           )
 
+          # Loop through each image and scan it with Mend CLI
           for image in "${images[@]}"; do
             echo "Scanning image: $image"
             mend image "$image" # Add any necessary flags for the Mend CLI here
           done
+
 
       - name: Deploy to Kubernetes
         run: |
