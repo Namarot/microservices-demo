@@ -1,9 +1,10 @@
 name: Scan Kubernetes Images
 
 on:
-  push:
-    branches:
-      - main  # Adjust this if you want to trigger on a different branch
+  # push:
+  #   branches:
+  #     - main  # Adjust this if you want to trigger on a different branch
+  workflow_dispatch:
 
 jobs:
   scan-and-deploy:
