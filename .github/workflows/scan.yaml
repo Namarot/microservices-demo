@@ -1,4 +1,4 @@
-name: Scan Kubernetes Images and Deploy
+name: Scan Kubernetes Images
 
 on:
   push:
@@ -62,8 +62,3 @@ jobs:
             echo "Scanning image: $image"
             mend image "$image" # Add any necessary flags for the Mend CLI here
           done
-
-      - name: Deploy to Kubernetes
-        run: |
-          echo "Deploying Kubernetes manifests..."
-          kubectl apply -f ./release/kubernetes-manifests.yaml

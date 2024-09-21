@@ -1,0 +1,19 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main  # Adjust this if you want to trigger on a different branch
+
+jobs:
+  scan-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Kubernetes
+        run: |
+          echo "Deploying Kubernetes manifests..."
+          kubectl apply -f ./release/kubernetes-manifests.yaml
