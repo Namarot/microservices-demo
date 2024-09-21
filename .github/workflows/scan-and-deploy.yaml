@@ -13,6 +13,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install Docker
+        run: |
+          if ! command -v docker &> /dev/null; then
+            echo "Docker not found. Installing Docker..."
+            sudo apt-get update
+            sudo apt-get install -y docker.io
+            sudo systemctl start docker
+            sudo systemctl enable docker
+          else
+            echo "Docker is already installed."
+          fi
+
       - name: Install Mend CLI
         run: |
           sudo curl https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend
@@ -46,7 +58,6 @@ jobs:
             echo "Scanning image: $image"
             mend image "$image" # Add any necessary flags for the Mend CLI here
           done
-
 
       - name: Deploy to Kubernetes
         run: |
